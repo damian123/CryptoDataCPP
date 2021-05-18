@@ -1,0 +1,13 @@
+{
+  "name": "cryptodata",
+  "version-string": "0.0.1",
+  "dependencies": [
+    "fmt",
+    "boost-beast",
+    "boost-multiprecision",
+    "boost-random",
+    "tbb",
+    "spdlog",
+    "gtest"
+  ]
+}

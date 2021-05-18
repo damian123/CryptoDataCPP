@@ -1,0 +1,6 @@
+[submodule "cpp/src/external/vcpkg"]
+	path = cpp/src/external/vcpkg
+	url = https://github.com/Microsoft/vcpkg
+[submodule "cpp/src/external/websocketpp"]
+	path = cpp/src/external/websocketpp
+	url = https://github.com/MuwazanaSA/websocketpp.git
