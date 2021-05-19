@@ -1,4 +1,4 @@
-file(GLOB SOURCES "*cc")
+file(GLOB SOURCES "*cc" "*h")
 add_library(rest STATIC ${SOURCES})
 target_include_directories(rest PUBLIC)
 target_link_libraries(rest)
