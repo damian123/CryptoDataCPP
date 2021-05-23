@@ -1,5 +1,4 @@
-git submodule add https://github.com/Microsoft/vcpkg cpp/src/external/vcpkg
-git submodule add https://github.com/MuwazanaSA/websocketpp.git cpp/src/external/websocketpp
+`git submodule update --init --recursive`
 
 Open a x64 Native Tools Command Prompt for VS 2019
 cd cpp

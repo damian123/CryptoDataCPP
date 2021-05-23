@@ -6,6 +6,7 @@
     "boost-beast",
     "boost-multiprecision",
     "boost-random",
+    "nlohmann-json",
     "tbb",
     "spdlog",
     "gtest"
