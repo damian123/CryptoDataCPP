@@ -4,7 +4,9 @@ add_library(util STATIC
   WS.cpp
   WS.h
   Time.h
-  Encoding.h)
+  Encoding.h
+  Secret.cpp
+  Secret.h)
 
 target_include_directories(util PUBLIC)
 target_link_libraries(util OpenSSL::SSL OpenSSL::Crypto)

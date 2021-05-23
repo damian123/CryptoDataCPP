@@ -1,6 +1,7 @@
 #include "util/HTTP.h"
 #include "util/Encoding.h"
 #include "util/Time.h"
+#include "util/Secret.h"
 
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ssl.hpp>
@@ -18,10 +19,15 @@ void HTTPSession::configure(std::string _uri,
                             std::string _api_secret,
                             std::string _subaccount_name)
 {
-    uri = _uri;
-    api_key = _api_key;
-    api_secret = _api_secret;
-    subaccount_name = _subaccount_name;
+	uri = _uri;
+
+	const std::vector<unsigned char> key = Base64Decode(_api_key.c_str());
+	api_key = std::string(key.begin(), key.end());
+
+	const std::vector<unsigned char> secret = Base64Decode(_api_secret.c_str());
+	api_secret = std::string(secret.begin(), secret.end());
+
+	subaccount_name = _subaccount_name;
 }
 
 http::response<http::string_body> HTTPSession::get(const std::string target)
