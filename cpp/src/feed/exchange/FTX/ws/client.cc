@@ -1,6 +1,6 @@
 #include "ws/client.h"
 #include "util/Encoding.h"
-#include "util/Time.h"
+#include "util/TimeUtil.h"
 #include <utility>
 
 namespace encoding = util::encoding;

@@ -1,0 +1,53 @@
+#pragma once
+
+#include <ws/client.h>
+#include <thread>
+#include <atomic>
+#include <tbb/concurrent_hash_map.h>
+
+struct Tick
+{
+	double time;
+	double bid;
+	double ask;
+	double last;
+
+	friend std::ostream& operator<<(std::ostream& o, const Tick& t)
+	{
+		return o << t.time << "," << t.bid << "," << t.ask << "," << t.last;		
+	}
+};
+
+class Runnable
+{
+public:
+	Runnable() : stop_(), thread_() { }
+	virtual ~Runnable() { try { stop(); } catch (...) { /*??*/ } }
+
+	Runnable(Runnable const&) = delete;
+	Runnable& operator =(Runnable const&) = delete;
+
+	void stop() { stop_ = true; thread_.join(); }
+	void start() { thread_ = std::thread(&Runnable::run, this); }
+
+protected:
+	virtual void run() = 0;
+	std::atomic<bool> stop_;
+
+private:
+	std::thread thread_;
+};
+
+class StreamingMarketData : public Runnable {
+public:
+	void SecID(const std::string& secID) { secid_ = secID; }
+	Tick getTick(const std::string& secID);
+protected:	
+	void run();
+
+private:
+	std::string secid_;
+    ftx::WSClient ftxClient_;
+	tbb::concurrent_hash_map<std::string, Tick> marketdata_;
+};
+

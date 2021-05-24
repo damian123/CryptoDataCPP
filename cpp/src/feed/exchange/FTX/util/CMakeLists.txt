@@ -3,10 +3,11 @@ add_library(util STATIC
   HTTP.h  
   WS.cpp
   WS.h
-  Time.h
+  TimeUtil.h
+  Encoding.cpp
   Encoding.h
   Secret.cpp
   Secret.h)
 
-target_include_directories(util PUBLIC)
+target_include_directories(util PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 target_link_libraries(util OpenSSL::SSL OpenSSL::Crypto)

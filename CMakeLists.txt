@@ -41,7 +41,7 @@ message(STATUS "Crypto Data Version: ${CRYPTODATA_VERSION}")
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 if (WIN32)
   set(CMAKE_CXX_FLAGS "-D_WIN32_WINNT=0x0601 /EHsc")
 elseif (UNIX)
@@ -73,6 +73,7 @@ add_subdirectory(cpp/src/feed/exchange/FTX/util)
 add_subdirectory(cpp/src/feed/exchange/FTX/example)
 
 add_subdirectory(cpp/src/staticdata/securities)
+add_subdirectory(cpp/src/marketdata/streaming)
 
 if (CRYPTODATA_TEST)
   message(STATUS "Building tests")
