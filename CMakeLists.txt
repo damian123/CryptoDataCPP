@@ -15,7 +15,7 @@ option(CRYPTODATA_PEDANTIC "Enable extra warnings and expensive tests." OFF)
 option(CRYPTODATA_WERROR   "Halt the compilation with an error on compiler warnings." OFF)
 
 # Options that control generation of various targets.
-option(CRYPTODATA_TEST "Generate the test target." ${FMT_MASTER_PROJECT})
+option(CRYPTODATA_TEST "Generate the test target." ON) #${CRYPTODATA_MASTER_PROJECT})
 option(CRYPTODATA_DOC "Generate the doc target" OFF) #${CRYPTODATA_MASTER_PROJECT})
 
 # Joins arguments and places the results in ${result_var}.
@@ -37,7 +37,7 @@ math(EXPR CPACK_PACKAGE_VERSION_MAJOR ${CMAKE_MATCH_1})
 math(EXPR CPACK_PACKAGE_VERSION_MINOR ${CMAKE_MATCH_2})
 math(EXPR CPACK_PACKAGE_VERSION_PATCH ${CMAKE_MATCH_3})
 join(CRYPTODATA_VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
-message(STATUS "Credit Data Version: ${CRYPTODATA_VERSION}")
+message(STATUS "Crypto Data Version: ${CRYPTODATA_VERSION}")
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
@@ -61,6 +61,9 @@ include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 find_package(OpenSSL 1.1 REQUIRED)
 include_directories(SYSTEM ${OPENSSL_INCLUDE_DIR})
 
+find_package(TBB CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
+
 include_directories(cpp/src/feed/exchange/FTX)
 include_directories(SYSTEM cpp/src/external)
 
@@ -69,6 +72,13 @@ add_subdirectory(cpp/src/feed/exchange/FTX/ws)
 add_subdirectory(cpp/src/feed/exchange/FTX/util)
 add_subdirectory(cpp/src/feed/exchange/FTX/example)
 
+add_subdirectory(cpp/src/staticdata/securities)
+
+if (CRYPTODATA_TEST)
+  message(STATUS "Building tests")
+  add_subdirectory(cpp/src/test)
+endif()
 if (CRYPTODATA_DOC)
+  message(STATUS "Building documentaion")
   add_subdirectory(cpp/docs)
- endif()
+endif()
