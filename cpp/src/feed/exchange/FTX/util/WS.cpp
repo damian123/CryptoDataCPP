@@ -79,4 +79,9 @@ void WS::connect()
     wsclient.run();
 }
 
+void WS::stop()
+{
+    wsclient.stop();
+}
+
 }

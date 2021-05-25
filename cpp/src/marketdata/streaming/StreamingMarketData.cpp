@@ -59,7 +59,7 @@ Tick StreamingMarketData::getTick(const std::string& secID)
 	dictAccessor accessor;
 	const auto isFound = marketdata_.find(accessor, secID);
 	if (isFound != true) {
-		throw std::exception(fmt::format("missing market data for the security ID : {}\n", secID).c_str());
+		throw std::exception(fmt::format("Security ID {} missing in market data", secID).c_str());
 	}
 
 	return accessor->second;

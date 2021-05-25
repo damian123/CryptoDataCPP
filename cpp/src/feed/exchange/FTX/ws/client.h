@@ -27,6 +27,11 @@ class WSClient
     void connect();
 
     /*!
+    * Stop the event processing loop that will us callback as messages arrive.
+    */
+    void stop();
+
+    /*!
 	 * Construct messages that will be sent to the exchange server when we open the rest connection.
      * The messages specify the authentication and channels to subscribe to for each market.	 
      * @result a vector of messages 

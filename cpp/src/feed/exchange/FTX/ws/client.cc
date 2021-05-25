@@ -23,6 +23,11 @@ void WSClient::connect()
     ws.connect();
 }
 
+void WSClient::stop()
+{
+    ws.stop();
+}
+
 std::vector<json> WSClient::on_open()
 {
     std::vector<json> msgs;

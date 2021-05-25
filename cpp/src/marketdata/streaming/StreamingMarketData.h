@@ -27,7 +27,7 @@ public:
 	Runnable(Runnable const&) = delete;
 	Runnable& operator =(Runnable const&) = delete;
 
-	void stop() { stop_ = true; thread_.join(); }
+	virtual void stop() { stop_ = true; thread_.join(); }
 	void start() { thread_ = std::thread(&Runnable::run, this); }
 
 protected:
@@ -42,6 +42,7 @@ class StreamingMarketData : public Runnable {
 public:
 	void SecID(const std::string& secID) { secid_ = secID; }
 	Tick getTick(const std::string& secID);
+	virtual void stop() { stop_ = true; ftxClient_.stop(); }
 protected:	
 	void run();
 
@@ -50,4 +51,3 @@ private:
     ftx::WSClient ftxClient_;
 	tbb::concurrent_hash_map<std::string, Tick> marketdata_;
 };
-

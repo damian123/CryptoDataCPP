@@ -12,7 +12,7 @@ TEST(streaming_marketdata_test_case, Spot)
         stream.SecID("BTC/USD");
         stream.start();
         std::this_thread::sleep_for(1s);
-        // stream.stop(); // TODO: Does not work at the moment.
+        stream.stop();
         Tick t = stream.getTick("BTC/USD");
         std::cout << t << "\n";
         EXPECT_EQ(1, 1);

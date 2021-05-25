@@ -56,6 +56,11 @@ class WS
      */
     void connect();
 
+    /*!
+	* Stop the io_context event processing loop	 
+    */
+    void stop();
+
   private:
     WSClient wsclient;
     WSClient::connection_ptr connection;
