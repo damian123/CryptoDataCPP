@@ -64,7 +64,7 @@ class WSClient
     void subscribe_trades(std::string market);
 
     /*!
-     * Subscribe to tick data for a market.
+     * Subscribe to tick data for a market, i.e. the best bid and offer price.
      * @param market The security code to subscribe to.
      */
     void subscribe_ticker(std::string market);

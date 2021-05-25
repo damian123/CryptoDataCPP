@@ -8,6 +8,7 @@
     "boost-random",
     "nlohmann-json",
     "tbb",
+    "date",
     "spdlog",
     "gtest"
   ]

@@ -3,19 +3,17 @@
 #include <ws/client.h>
 #include <thread>
 #include <atomic>
+#include  <chrono>
 #include <tbb/concurrent_hash_map.h>
 
 struct Tick
 {
-	double time;
+	double time;	// Number of milliseconds since Unix epoch. UTC timezone
 	double bid;
 	double ask;
 	double last;
 
-	friend std::ostream& operator<<(std::ostream& o, const Tick& t)
-	{
-		return o << t.time << "," << t.bid << "," << t.ask << "," << t.last;		
-	}
+	friend std::ostream& operator<<(std::ostream& o, const Tick& t);	
 };
 
 class Runnable

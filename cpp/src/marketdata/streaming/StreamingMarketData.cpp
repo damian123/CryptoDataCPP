@@ -1,8 +1,25 @@
 #include <StreamingMarketData.h>
+
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
+#include <date/date.h>
+#include <chrono>
 #include <iostream>
 #include <fmt/core.h>
 
 typedef tbb::concurrent_hash_map<std::string, Tick>::accessor dictAccessor;
+
+std::ostream& operator<<(std::ostream& o, const Tick& t)
+{
+	using namespace date;	
+	using namespace std::chrono;
+	sys_time<milliseconds> tp{ milliseconds{int64_t(t.time*1000.)} };
+	return o << tp << "," << t.bid << "," << t.ask << "," << t.last;
+}
 
 void StreamingMarketData::run()
 { 	
@@ -51,7 +68,7 @@ void StreamingMarketData::run()
 			});
 
 		ftxClient_.connect();
-	}; 
+	};
 }
 
 Tick StreamingMarketData::getTick(const std::string& secID)
