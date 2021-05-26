@@ -7,14 +7,13 @@ TEST(streaming_marketdata_test_case, Spot)
 {                
     using namespace std::chrono_literals;
 
-    try {
-        StreamingMarketData stream;
-        stream.SecID("BTC/USD");
-        stream.start();
-        std::this_thread::sleep_for(1s);
-        stream.stop();
-        Tick t = stream.getTick("BTC/USD");
+    try {         
+        StreamingMarketData::getInstance().SecID("BTC/USD");
+        StreamingMarketData::getInstance().start();
+        std::this_thread::sleep_for(1s);        
+        Tick t = StreamingMarketData::getInstance().getTick("BTC/USD");
         std::cout << t << "\n";
+        StreamingMarketData::getInstance().stop();
         EXPECT_EQ(1, 1);
     }
     catch (std::exception& ex)

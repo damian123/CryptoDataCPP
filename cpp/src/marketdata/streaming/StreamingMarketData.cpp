@@ -16,7 +16,7 @@ std::ostream& operator<<(std::ostream& o, const Tick& t)
 {
 	using namespace date;	
 	using namespace std::chrono;
-	sys_time<milliseconds> tp{ milliseconds{int64_t(t.time*1000.)} };
+	std::chrono::sys_time<milliseconds> tp{ milliseconds{int64_t(t.time*1000.)} };
 	return o << tp << "," << t.bid << "," << t.ask << "," << t.last;
 }
 
@@ -80,5 +80,3 @@ Tick StreamingMarketData::getTick(const std::string& secID)
 
 	return accessor->second;
 }
-
-
