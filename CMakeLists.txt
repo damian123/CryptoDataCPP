@@ -66,6 +66,7 @@ find_package(fmt CONFIG REQUIRED)
 
 include_directories(cpp/src/feed/exchange/FTX)
 include_directories(SYSTEM cpp/src/external)
+include_directories(SYSTEM cpp/src/external/websocketpp)
 
 add_subdirectory(cpp/src/feed/exchange/FTX/rest)
 add_subdirectory(cpp/src/feed/exchange/FTX/ws)
