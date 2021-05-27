@@ -27,10 +27,26 @@ class WSClient
     void connect();
 
     /*!
-    * Stop the event processing loop that will us callback as messages arrive.
-    */
-    void stop();
+     * Close the connection.
+     * This will cleanly perform the WebSocket and TCP closing handshakes (with a configurable timeout
+     * to make sure a malicious or broken client doesn't hang forever). The cleanup process is not instantaneous,
+     * as it requires a few network round trips to clean everything up, as a result you can get a
+     * few more async message callbacks.
+     */
+    void close();
 
+    /*!
+     * This will immediately cease processing io_service jobs.
+     * This will leave all existing connections in a limbo state.
+     * WebSocket connections will not appear to have closed on the other end but when they try
+     * and write they will get a broken TCP / unclean disconnect error or timeout error.
+     * Your local OS may keep sockets open as well tying up resources or ports.
+     * You local WebSocket++ connections will all immediately have their close/fail handlers
+     * called with an unclean disconnect close code.
+     * Note: It is advised to call close() instead.
+     */
+    void stop();
+    
     /*!
 	 * Construct messages that will be sent to the exchange server when we open the rest connection.
      * The messages specify the authentication and channels to subscribe to for each market.	 

@@ -23,6 +23,11 @@ void WSClient::connect()
     ws.connect();
 }
 
+void WSClient::close()
+{
+	ws.close();
+}
+
 void WSClient::stop()
 {
     ws.stop();

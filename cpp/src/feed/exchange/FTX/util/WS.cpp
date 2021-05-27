@@ -79,6 +79,11 @@ void WS::connect()
     wsclient.run();
 }
 
+void WS::close()
+{
+    connection->close(websocketpp::close::status::normal, "Closing connection");
+}
+
 void WS::stop()
 {
     wsclient.stop();

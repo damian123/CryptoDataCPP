@@ -49,7 +49,11 @@ public:
 
 	void SecID(const std::string& secID) { secid_ = secID; }
 	Tick getTick(const std::string& secID);
-	virtual void stop() { stop_ = true; ftxClient_.stop(); }
+	virtual void stop() {
+		using namespace std::chrono_literals;
+		ftxClient_.close();
+		stop_ = true;		
+	}
 
 protected:
 	void run();
