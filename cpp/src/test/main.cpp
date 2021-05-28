@@ -23,7 +23,7 @@ public:
         }
 
         {            
-            auto rotating_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>("test_log.txt", 1024 * 1024 * 10, 3);
+            auto rotating_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>("ftx_test_log.txt", 1024 * 1024 * 10, 3);
             std::vector<spdlog::sink_ptr> sinks{ rotating_sink };
             auto logger = std::make_shared<spdlog::async_logger>("ftx", sinks.begin(), sinks.end(), spdlog::thread_pool(), spdlog::async_overflow_policy::block);
             logger->flush_on(spdlog::level::err);   // trigger flush whenever errors or more severe messages are logged

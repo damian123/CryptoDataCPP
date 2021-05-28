@@ -3,6 +3,8 @@
 #include <gtest/gtest.h>
 #include <StreamingMarketData.h>
 
+#define GTEST_COUT std::cerr << "[          ] "
+
 TEST(streaming_marketdata_test_case, Spot)
 {                
     using namespace std::chrono_literals;
@@ -12,14 +14,20 @@ TEST(streaming_marketdata_test_case, Spot)
         StreamingMarketData::getInstance().start();
         std::this_thread::sleep_for(1s);
         Tick t = StreamingMarketData::getInstance().getTick("BTC/USD");
-        std::cout << t << "\n";
+        std::cout << t << "\n";        
         StreamingMarketData::getInstance().stop();        
-        EXPECT_EQ(1, 1);
+        ASSERT_TRUE(true);
+        
     }
-    catch (std::exception& ex)
+    catch (const std::exception& ex)
     {
-        std::cout << ex.what() << "\n";
+        GTEST_COUT << ex.what()  << std::endl;
+        FAIL();
     }
-
 }
 
+
+// Some of these the market feed code to be refined.
+// TODO: Start a new market data stream.
+// TODO: Check for invalid security codes when connecting to the exchange server
+// TODO: Check for invalid security codes when retrieving ticks

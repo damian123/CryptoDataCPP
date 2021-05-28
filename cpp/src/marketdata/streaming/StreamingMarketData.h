@@ -3,8 +3,9 @@
 #include <ws/client.h>
 #include <thread>
 #include <atomic>
-#include  <chrono>
+#include <chrono>
 #include <tbb/concurrent_hash_map.h>
+#include <spdlog/spdlog.h>
 
 struct Tick
 {
@@ -59,7 +60,7 @@ protected:
 	void run();
 
 private:
-	StreamingMarketData() {};
+	StreamingMarketData() : log_{ spdlog::get("ftx") } {};
 
 public:
 	StreamingMarketData(StreamingMarketData const&) = delete;
@@ -69,4 +70,5 @@ private:
 	std::string secid_;
     ftx::WSClient ftxClient_;
 	tbb::concurrent_hash_map<std::string, Tick> marketdata_;
+	std::shared_ptr<spdlog::logger> log_;
 };

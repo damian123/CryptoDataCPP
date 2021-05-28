@@ -1,5 +1,6 @@
 #include <util/WS.h>
 #include <util/Secret.h>
+#include <fmt/core.h>
 
 namespace util {
 
@@ -32,7 +33,15 @@ WS::WS()
       [this](websocketpp::connection_hdl) { throw "Interrupt handler"; });
 
     wsclient.set_fail_handler(
-      [this](websocketpp::connection_hdl) { throw "Fail handler"; });
+      [this](websocketpp::connection_hdl hdl) 
+        { 
+            // TODO: improve the error handling  here, by writing to a log file and throw std::exception instead of a string.
+            // Add unit tests to verify that this works, which might require me to setup my own mock socket server
+            // auto con = wsclient.get_con_from_hdl(hdl);
+			// auto server = con->get_response_header("Server");
+			// auto error_reason = con->get_ec().message();            
+            throw "Fail handler"; 
+        });
 
     wsclient.set_tls_init_handler([](websocketpp::connection_hdl) {
         return websocketpp::lib::make_shared<boost::asio::ssl::context>(
@@ -70,10 +79,8 @@ void WS::connect()
 {
     websocketpp::lib::error_code ec;
     connection = wsclient.get_connection(uri, ec);
-    if (ec) {
-        std::string err =
-          "Could not create connection because: " + ec.message() + "\n";
-        throw err;
+    if (ec) {        
+        throw std::exception(fmt::format("Could not get connection to {} {}", uri, ec.message()).c_str());
     }
     wsclient.connect(connection);
     wsclient.run();
