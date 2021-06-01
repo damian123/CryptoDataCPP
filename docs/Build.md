@@ -11,3 +11,6 @@ cd build
 conan install .. -s compiler="Visual Studio" -s compiler.version=16 -sbuild_type=Debug
 cmake .. -DBUILD_TESTS=on -DCMAKE_INSTALL_PREFIX=../install
 cmake --build . --parallel
+
+
+TODO: Fix the issue that cryptodata_test can't find the dependent .dlls since it is in a seperate bin directory.
