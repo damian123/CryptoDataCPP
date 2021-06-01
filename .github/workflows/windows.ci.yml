@@ -43,9 +43,8 @@ jobs:
           cmake .. -DBUILD_TESTS=on -DCMAKE_INSTALL_PREFIX=../install
 
       - name: Build
-        working-directory: ${{env.GITHUB_WORKSPACE}}
+        working-directory: ./build
         shell: bash
         run: |
-          cd build
           cmake --build . --parallel
   
