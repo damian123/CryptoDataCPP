@@ -1,6 +1,5 @@
-enable_testing()
-find_package(GTest REQUIRED)
-include_directories(${GTEST_INCLUDE_DIR})
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
 
 # Add test cpp file
 add_executable(cryptodata_test
@@ -10,17 +9,18 @@ add_executable(cryptodata_test
 )
 
 target_include_directories(cryptodata_test PRIVATE securities streaming)
-target_link_libraries(cryptodata_test PRIVATE 
-  securities 
-  streaming
-  ${GTEST_LIBRARIES} 
-  ${GTEST_MAIN_LIBRARIES} 
-  ${Boost_LIBRARIES} 
-  ${OPENSSL_LIBRARIES} 
-  TBB::tbb 
-  fmt::fmt)
 
-add_test(
-    NAME cryptodata_test
-    COMMAND cryptodata_test
-)
+target_link_libraries(cryptodata_test PRIVATE 
+  securities
+  streaming
+  ws
+  rest
+  ${CONAN_LIBS})
+
+set_target_properties(cryptodata_test PROPERTIES LINK_FLAGS "/ignore:4099")
+
+#add_test(
+#    NAME cryptodata_test
+#    COMMAND cryptodata_test
+#)
+

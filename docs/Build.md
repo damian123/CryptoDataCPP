@@ -1,6 +1,13 @@
-`git submodule update --init --recursive`
+# prerequisites
+Visual Studio 2019
+Conan dependency and package manager `pip install conan`
+(optional) Update submodules `git pull --recurse-submodules`
 
+
+# Build
 Open a x64 Native Tools Command Prompt for VS 2019
-cd cpp
 mkdir build
-cmake .. -DCMAKE_TOOLCHAIN_FILE=C:\dev\trading\CryptoData\cpp\src\external\vcpkg\scripts\buildsystems\vcpkg.cmake
+cd build
+conan install .. -s compiler="Visual Studio" -s compiler.version=16 -sbuild_type=Debug
+cmake .. -DBUILD_TESTS=on -DCMAKE_INSTALL_PREFIX=../install
+cmake --build . --parallel

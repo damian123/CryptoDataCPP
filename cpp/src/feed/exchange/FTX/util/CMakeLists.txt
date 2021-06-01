@@ -10,4 +10,4 @@ add_library(util STATIC
   Secret.h)
 
 target_include_directories(util PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
-target_link_libraries(util OpenSSL::SSL OpenSSL::Crypto)
+target_link_libraries(util)

@@ -1,68 +1,34 @@
 cmake_minimum_required(VERSION 3.10)
 project(cryptodata CXX)
 
-# Determine if cryptodata is built as a subproject (using add_subdirectory)
-# or if it is the master project.
-if (NOT DEFINED CRYPTODATA_MASTER_PROJECT)
-  set(CRYPTODATA_MASTER_PROJECT OFF)
-  if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-    set(CRYPTODATA_MASTER_PROJECT ON)
-    message(STATUS "CMake version: ${CMAKE_VERSION}")
-  endif ()
-endif ()
+option(BUILD_TESTS "Build the tests." ON)
+option(BUILD_DOCS "Build the documentation" OFF)
+#option(CRYPTODATA_PEDANTIC "Enable extra warnings and expensive tests." OFF)
+#option(CRYPTODATA_WERROR   "Halt the compilation with an error on compiler warnings." OFF)
 
-option(CRYPTODATA_PEDANTIC "Enable extra warnings and expensive tests." OFF)
-option(CRYPTODATA_WERROR   "Halt the compilation with an error on compiler warnings." OFF)
+set(CRYPTODATA_MAJOR_VERSION 1)
+set(CRYPTODATA_MINOR_VERSION 0)
+set(CRYPTODATA_PATCH_VERSION 0)
+set(CRYPTODATA_VERSION
+    ${CRYPTODATA_MAJOR_VERSION}.${CRYPTODATA_MINOR_VERSION}.${CRYPTODATA_PATCH_VERSION})
 
-# Options that control generation of various targets.
-option(CRYPTODATA_TEST "Generate the test target." ON) #${CRYPTODATA_MASTER_PROJECT})
-option(CRYPTODATA_DOC "Generate the doc target" OFF) #${CRYPTODATA_MASTER_PROJECT})
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup(KEEP_RPATHS TARGETS)
 
-# Joins arguments and places the results in ${result_var}.
-function(join result_var)
-  set(result )
-  foreach (arg ${ARGN})
-    set(result "${result}${arg}")
-  endforeach ()
-  set(${result_var} "${result}" PARENT_SCOPE)
-endfunction()
-
-# Get version from core.h
-file(READ cpp/include/cryptodata/core.h core_h)
-if (NOT core_h MATCHES "CRYPTODATA_VERSION ([0-9]+)([0-9][0-9])([0-9][0-9])")
-  message(FATAL_ERROR "Cannot get CRYPTODATA_VERSION from core.h.")
-endif ()
-# Use math to skip leading zeros if any.
-math(EXPR CPACK_PACKAGE_VERSION_MAJOR ${CMAKE_MATCH_1})
-math(EXPR CPACK_PACKAGE_VERSION_MINOR ${CMAKE_MATCH_2})
-math(EXPR CPACK_PACKAGE_VERSION_PATCH ${CMAKE_MATCH_3})
-join(CRYPTODATA_VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
-message(STATUS "Crypto Data Version: ${CRYPTODATA_VERSION}")
-
-message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+# Offer the user the choice of overriding the installation directories
+set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
+set(INSTALL_INCLUDE_DIR
+    include
+    CACHE PATH "Installation directory for header files")
+set(DEF_INSTALL_CRYPTODATA_CMAKE_DIR lib/cmake/cryptodata)
+set(INSTALL_CRYPTODATA_CMAKE_DIR
+    ${DEF_INSTALL_CRYPTODATA_CMAKE_DIR}
+    CACHE PATH "Installation directory for cmake files")
 
 set(CMAKE_CXX_STANDARD 20)
 if (WIN32)
   set(CMAKE_CXX_FLAGS "-D_WIN32_WINNT=0x0601 /EHsc")
-elseif (UNIX)
-	set(CMAKE_CXX_FLAGS "-Wall -Werror -Wfatal-errors -Wpedantic -Wextra -Wmissing-include-dirs -Wconversion -Wsign-conversion -pthread")
-	add_compile_options(-Wall -Werror -Wfatal-errors -Wpedantic -Wextra -Wmissing-include-dirs -Wconversion -Wsign-conversion -pthread)
-
-	set(CMAKE_CXX_FLAGS_DEBUG "-O0 -march=native -g")
 endif()
-
-set(Boost_USE_STATIC_LIBS OFF)
-set(Boost_USE_STATIC_RUNTIME OFF)
-set(Boost_USE_MULTITHREADED OFF)
-find_package(Boost 1.71 REQUIRED COMPONENTS random)
-link_directories(${Boost_LIBRARY_DIRS})
-include_directories(SYSTEM ${Boost_INCLUDE_DIR})
-
-find_package(OpenSSL 1.1 REQUIRED)
-include_directories(SYSTEM ${OPENSSL_INCLUDE_DIR})
-
-find_package(TBB CONFIG REQUIRED)
-find_package(fmt CONFIG REQUIRED)
 
 include_directories(cpp/src/feed/exchange/FTX)
 include_directories(SYSTEM cpp/src/external)
@@ -76,11 +42,53 @@ add_subdirectory(cpp/src/feed/exchange/FTX/example)
 add_subdirectory(cpp/src/staticdata/securities)
 add_subdirectory(cpp/src/marketdata/streaming)
 
-if (CRYPTODATA_TEST)
+if (BUILD_TESTS)
   message(STATUS "Building tests")
   add_subdirectory(cpp/src/test)
 endif()
-if (CRYPTODATA_DOC)
-  message(STATUS "Building documentaion")
+
+if (BUILD_DOCS)
+  message(STATUS "Building documentation")
   add_subdirectory(cpp/docs)
 endif()
+
+# Install
+#install(TARGETS cryptodata
+#                # IMPORTANT: Add the cryptodata library to the "export-set"
+#        EXPORT CryptodataTargets
+#        RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
+#        ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
+#        LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib)
+#install(FILES ${CMAKE_CURRENT_BINARY_DIR}/exports/cryptodata/exports.h
+#        DESTINATION ${INSTALL_INCLUDE_DIR}/cryptodata)
+#install(FILES ${public_utils_headers}
+#        DESTINATION ${INSTALL_INCLUDE_DIR}/cryptodata/utils)
+
+#include(CMakePackageConfigHelpers)
+# ... for the install tree
+#configure_package_config_file(
+#  cmake/templates/CryptoDataConfig.cmake.in
+#  ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CryptoDataConfig.cmake
+#  INSTALL_DESTINATION
+#  ${INSTALL_CRYPTODATA_CMAKE_DIR})
+
+# version
+#write_basic_package_version_file(
+#  ${CMAKE_CURRENT_BINARY_DIR}/CryptoDataConfigVersion.cmake
+#  VERSION ${CRYPTODATA_VERSION}
+#  COMPATIBILITY SameMajorVersion)
+
+# Install the CryptoDataConfig.cmake and CryptoDataConfigVersion.cmake
+#install(
+#  FILES
+#    "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CryptoDataConfig.cmake"
+#    "${CMAKE_CURRENT_BINARY_DIR}/CryptoDataConfigVersion.cmake"
+#    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/Findc-ares.cmake"
+#  DESTINATION "${INSTALL_CRYPTODATA_CMAKE_DIR}"
+#  COMPONENT dev)
+
+# Install the export set for use with the install-tree
+#install(EXPORT CryptoDataTargets
+#        DESTINATION "${INSTALL_CRYPTODATA_CMAKE_DIR}"
+#        NAMESPACE CryptoData::
+#        COMPONENT dev)

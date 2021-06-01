@@ -1,0 +1,21 @@
+[requires]
+boost/[>=1.76.0]
+gtest/[>=1.10.0]
+openssl/[>=1.1.1k]
+spdlog/[>=1.8.5]
+fmt/[>=7.1.3]
+nlohmann_json/[>=3.9.1]
+date/[>=3.0.0]
+
+[generators]
+cmake
+
+[options]
+Boost:shared=True
+spdlog:shared=True
+fmt:shared=True
+
+[imports]
+bin, *.dll -> ./bin
+lib, *.dylib* -> ./bin
+lib, *.so* -> ./bin
