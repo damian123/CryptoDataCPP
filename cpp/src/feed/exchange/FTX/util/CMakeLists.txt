@@ -1,3 +1,6 @@
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
+
 add_library(util STATIC 
   HTTP.cpp
   HTTP.h  
