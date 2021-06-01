@@ -1,0 +1,51 @@
+name: Build CreditData
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  windows:
+    name: 'windows/msvc - ${{matrix.link}}'
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout CreditData source code
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Install dependencies
+        run: |
+          pip install conan
+
+      - name: Create build directory
+        run: |
+          mkdir build
+
+      - name: Install conan packages
+        shell: pwsh
+        working-directory: ./build
+        run: |
+          conan install .. -s compiler="Visual Studio" -s compiler.version=16 -sbuild_type=Debug
+
+      - name: Create Build Environment & Configure Cmake
+        shell: bash
+        working-directory: ./build
+        run: |
+          cmake .. -DBUILD_TESTS=on -DCMAKE_INSTALL_PREFIX=../install
+
+      - name: Build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        shell: bash
+        run: |
+          cd build
+          cmake --build . --parallel
+  
