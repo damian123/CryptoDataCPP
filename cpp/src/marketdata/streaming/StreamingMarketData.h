@@ -52,9 +52,8 @@ public:
 	void Subscribe(std::string secID);
 	Tick getTick(const std::string& secID);
 	virtual void stop() {
-		using namespace std::chrono_literals;
-		ftxClient_.close();
-		stop_ = true;		
+		ftxClient_.stop();
+		stop_ = true;
 	}
 
 protected:

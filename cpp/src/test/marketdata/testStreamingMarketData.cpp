@@ -30,8 +30,9 @@ TEST(streaming_marketdata_test_case, Spot)
     }
 }
 
-
 // Some of these the market feed code to be refined.
-// TODO: Start a new market data stream.
-// TODO: Check for invalid security codes when connecting to the exchange server
-// TODO: Check for invalid security codes when retrieving ticks
+// TODO: Check for invalid security codes when connecting to the exchange server.
+// TODO: Check for invalid security codes when retrieving ticks.
+// TODO: Check if we get errors when the connection is down.
+// TODO: Start a new market data stream after stopping it.
+
