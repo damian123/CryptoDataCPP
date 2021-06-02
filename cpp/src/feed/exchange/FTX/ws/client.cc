@@ -85,4 +85,9 @@ void WSClient::subscribe_ticker(std::string market)
     subscriptions.push_back(std::make_pair(market, "ticker"));
 }
 
+void WSClient::subscribe(std::string market, std::string channel)
+{
+    ws.subscribe(market, channel);
+}
+
 }

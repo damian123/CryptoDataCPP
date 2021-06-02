@@ -14,7 +14,11 @@ TEST(streaming_marketdata_test_case, Spot)
         StreamingMarketData::getInstance().start();
         std::this_thread::sleep_for(1s);
         Tick t = StreamingMarketData::getInstance().getTick("BTC/USD");
-        std::cout << t << "\n";        
+        std::cout << t << "\n"; 
+        StreamingMarketData::getInstance().Subscribe("BTC-PERP");
+        std::this_thread::sleep_for(1s);
+        t = StreamingMarketData::getInstance().getTick("BTC-PERP");
+        std::cout << t << "\n";
         StreamingMarketData::getInstance().stop();        
         ASSERT_TRUE(true);
         

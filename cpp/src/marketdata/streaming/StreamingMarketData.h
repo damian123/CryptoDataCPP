@@ -48,7 +48,8 @@ public:
 		return instance;
 	}
 
-	void SecID(const std::string& secID) { secid_ = secID; }
+	void SecID(std::string secID) { secid_ = secID; }
+	void Subscribe(std::string secID);
 	Tick getTick(const std::string& secID);
 	virtual void stop() {
 		using namespace std::chrono_literals;

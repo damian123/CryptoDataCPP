@@ -94,6 +94,11 @@ void StreamingMarketData::run()
 	};
 }
 
+void StreamingMarketData::Subscribe(std::string secID)
+{
+	ftxClient_.subscribe(secID, "ticker");
+}
+
 Tick StreamingMarketData::getTick(const std::string& secID)
 {
 	dictAccessor accessor;

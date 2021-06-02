@@ -77,6 +77,8 @@ class WS
     */
     void stop();
 
+    void subscribe(std::string market, std::string channel);
+
   private:
     WSClient wsclient;
     WSClient::connection_ptr connection;

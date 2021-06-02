@@ -84,6 +84,8 @@ class WSClient
      * @param market The security code to subscribe to.
      */
     void subscribe_ticker(std::string market);
+    
+    void subscribe(std::string market, std::string channel);
 
   private:
     std::vector<std::pair<std::string, std::string>> subscriptions; // vector of pairs for markets and channels.

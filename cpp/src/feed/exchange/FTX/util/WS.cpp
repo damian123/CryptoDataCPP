@@ -96,4 +96,11 @@ void WS::stop()
     wsclient.stop();
 }
 
+void WS::subscribe(std::string market, std::string channel)
+{    
+    json msg = { {"op", "subscribe"}, {"channel", channel}, {"market", market} }; 
+    auto hdl = connection->get_handle();    
+	wsclient.send(hdl, msg.dump(), websocketpp::frame::opcode::text);
+}
+
 }
