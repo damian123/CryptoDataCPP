@@ -1,8 +1,7 @@
 name: Build CreditData
 
 on:
-  push:
-    branches: [master]
+  push:    
   pull_request:
   workflow_dispatch:
 
