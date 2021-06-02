@@ -1,3 +1,6 @@
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
+
 file(GLOB SOURCES "*cc" "*h")
 add_library(ws STATIC ${SOURCES})
 target_include_directories(ws PUBLIC)
