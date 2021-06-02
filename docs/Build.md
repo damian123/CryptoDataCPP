@@ -1,7 +1,7 @@
 # prerequisites
 Visual Studio 2019
 Conan dependency and package manager `pip install conan`
-(optional) Update submodules `git pull --recurse-submodules`
+(optional) Update submodules `git submodule update --init --recursive` or `git pull --recurse-submodules`
 
 
 # Build

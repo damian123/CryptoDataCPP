@@ -1,8 +1,7 @@
 name: Build CreditData
 
 on:
-  push:
-    branches: [master]
+  push:    
   pull_request:
 
 env:
@@ -33,17 +32,17 @@ jobs:
         shell: pwsh
         working-directory: ./build
         run: |
-          conan install .. -s compiler="Visual Studio" -s compiler.version=16
+          conan install .. -s compiler="Visual Studio" -s compiler.version=16 -s build_type=Release
 
       - name: Create Build Environment & Configure Cmake
         shell: bash
         working-directory: ./build
         run: |
-          cmake .. -DBUILD_TESTS=on -DCMAKE_INSTALL_PREFIX=../install
+          cmake .. -DBUILD_TESTS=on -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
         working-directory: ./build
         shell: bash
         run: |
-          cmake --build . --parallel
+          cmake --build . --parallel --config Release
   
