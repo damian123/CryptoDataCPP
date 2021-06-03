@@ -22,7 +22,7 @@ std::ostream& operator<<(std::ostream& o, const Tick& t)
 }
 
 void StreamingMarketData::run()
-{ 	
+{ 		
 	while (!stop_) 
 	{ 
 		try {
@@ -30,17 +30,17 @@ void StreamingMarketData::run()
 
 			ftxClient_.on_message(
 				[this](json j)
-				{
-					std::cout << "msg: " << j << "\n";
-
+				{					
 					std::string type = j["type"].get<std::string>();
 					if (type.compare("error") == 0)
 					{
-						throw std::exception(fmt::format("error message: {}", j.dump()).c_str());
+						auto errmsg = fmt::format("error message: {}", j.dump());
+						log_->error(errmsg);
+						throw std::exception(errmsg.c_str());
 					}
 					else if (type.compare("subscribed") == 0)
 					{
-						// TODO: write this in the logger
+						log_->info(fmt::format("subscribed: {}", j));
 					}
 					else if (type.compare("update") == 0)
 					{
@@ -49,6 +49,7 @@ void StreamingMarketData::run()
 						//  "data" : {"ask":36625.0, "askSize" : 0.0268, "bid" : 36616.0, "bidSize" : 0.1874, "last" : 36613.0, "time" : 1621840074.4480262}, 
 						//  "market" : "BTC/USD", 
 						//  "type" : "update"}
+						log_->debug(fmt::format("Update msg: {}", j));
 						std::string secID = j["market"];
 						std::string channel = j["channel"];
 						// TODO: Check channel is a ticker
@@ -64,7 +65,7 @@ void StreamingMarketData::run()
 					}
 					else
 					{
-						throw std::exception(fmt::format("Unknown message type {} message: {}", type, j.dump()).c_str());
+						log_->error(fmt::format("Unknown message type {} message: {}", type, j.dump()));
 					}
 				});
 
