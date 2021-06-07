@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(cryptodata CXX)
 
-option(BUILD_TESTS_CRYPTODATA "Build the tests." ON)
+option(BUILD_TESTS_CRYPTODATA "Build the tests." OFF)
 option(BUILD_DOCS "Build the documentation" OFF)
 #option(CRYPTODATA_PEDANTIC "Enable extra warnings and expensive tests." OFF)
 #option(CRYPTODATA_WERROR   "Halt the compilation with an error on compiler warnings." OFF)
