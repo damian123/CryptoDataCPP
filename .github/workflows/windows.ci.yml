@@ -1,4 +1,4 @@
-name: Build CreditData
+name: Build Crypto Data
 
 on:
   push:    
@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
     steps:
-      - name: Checkout CreditData source code
+      - name: Checkout CryptoData source code
         uses: actions/checkout@v2
         with:
           submodules: true
