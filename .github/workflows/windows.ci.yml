@@ -38,7 +38,7 @@ jobs:
         shell: bash
         working-directory: ./build
         run: |
-          cmake .. -DBUILD_TESTS=on -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_BUILD_TYPE=Release
+          cmake .. -DBUILD_TESTS_CRYPTODATA=on -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
         working-directory: ./build

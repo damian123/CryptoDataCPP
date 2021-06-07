@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(cryptodata CXX)
 
-option(BUILD_TESTS "Build the tests." ON)
+option(BUILD_TESTS_CRYPTODATA "Build the tests." ON)
 option(BUILD_DOCS "Build the documentation" OFF)
 #option(CRYPTODATA_PEDANTIC "Enable extra warnings and expensive tests." OFF)
 #option(CRYPTODATA_WERROR   "Halt the compilation with an error on compiler warnings." OFF)
@@ -42,7 +42,7 @@ add_subdirectory(cpp/src/feed/exchange/FTX/example)
 add_subdirectory(cpp/src/staticdata/securities)
 add_subdirectory(cpp/src/marketdata/streaming)
 
-if (BUILD_TESTS)
+if (BUILD_TESTS_CRYPTODATA)
   message(STATUS "Building tests")
   add_subdirectory(cpp/src/test ${CMAKE_BINARY_DIR}/bin)
 endif()

@@ -9,7 +9,7 @@ Open a x64 Native Tools Command Prompt for VS 2019
 mkdir build
 cd build
 conan install .. -s compiler="Visual Studio" -s compiler.version=16 -sbuild_type=Debug
-cmake .. -DBUILD_TESTS=on -DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=Debug
+cmake .. -DBUILD_TESTS_CRYPTODATA=on -DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=Debug
 cmake --build . --parallel --config Debug
 
 
