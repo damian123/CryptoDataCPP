@@ -46,3 +46,8 @@ jobs:
         run: |
           cmake --build . --parallel --config Release
   
+      - name: Test
+        working-directory: ./build/bin
+        shell: bash
+        run: |
+          ctest

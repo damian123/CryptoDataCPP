@@ -44,7 +44,7 @@ add_subdirectory(cpp/src/marketdata/streaming)
 
 if (BUILD_TESTS)
   message(STATUS "Building tests")
-  add_subdirectory(cpp/src/test)
+  add_subdirectory(cpp/src/test ${CMAKE_BINARY_DIR}/bin)
 endif()
 
 if (BUILD_DOCS)

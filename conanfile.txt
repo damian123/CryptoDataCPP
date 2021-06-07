@@ -17,6 +17,6 @@ spdlog:shared=True
 fmt:shared=True
 
 [imports]
-bin, *.dll -> ./bin
-lib, *.dylib* -> ./bin
-lib, *.so* -> ./bin
+bin, *.dll -> ./bin/bin
+lib, *.dylib* -> ./bin/bin
+lib, *.so* -> ./bin/bin
