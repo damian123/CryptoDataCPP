@@ -7,19 +7,13 @@
 
 TEST(streaming_marketdata_test_case, Spot)
 {                
+    // Get the spot rate
     using namespace std::chrono_literals;
 
-    try {         
-        StreamingMarketData::getInstance().SecID("BTC/USD");
-        StreamingMarketData::getInstance().start();
-        std::this_thread::sleep_for(1s);
+    try {
+        // BTC/USD spot rates are already subscribed to in the test SetUp()
         Tick t = StreamingMarketData::getInstance().getTick("BTC/USD");
         std::cout << t << "\n"; 
-        StreamingMarketData::getInstance().Subscribe("BTC-PERP");
-        std::this_thread::sleep_for(1s);
-        t = StreamingMarketData::getInstance().getTick("BTC-PERP");
-        std::cout << t << "\n";
-        StreamingMarketData::getInstance().stop();        
         ASSERT_TRUE(true);
         
     }
@@ -29,6 +23,27 @@ TEST(streaming_marketdata_test_case, Spot)
         FAIL();
     }
 }
+
+TEST(streaming_marketdata_test_case, Subscribe)
+{
+    // Subscribe, async wait for confirmation from the exchange and the first market data to arrive.
+	using namespace std::chrono_literals;
+
+	try {
+        StreamingMarketData::getInstance().Subscribe("ETH/USD");
+		std::this_thread::sleep_for(0.5s);
+		Tick t = StreamingMarketData::getInstance().getTick("ETH/USD");
+		std::cout << t << "\n";
+		ASSERT_TRUE(true);
+
+	}
+	catch (const std::exception& ex)
+	{
+		GTEST_COUT << ex.what() << std::endl;
+		FAIL();
+	}
+}
+
 
 // Some of these the market feed code to be refined.
 // TODO: Check for invalid security codes when connecting to the exchange server.
