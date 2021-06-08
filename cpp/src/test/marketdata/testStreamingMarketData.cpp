@@ -26,12 +26,12 @@ TEST(streaming_marketdata_test_case, Spot)
 
 TEST(streaming_marketdata_test_case, Subscribe)
 {
-    // Subscribe, async wait for confirmation from the exchange and the first market data to arrive.
+    // Subscribe to spot market data
 	using namespace std::chrono_literals;
 
 	try {
         StreamingMarketData::getInstance().Subscribe("ETH/USD");
-		std::this_thread::sleep_for(0.5s);
+		std::this_thread::sleep_for(0.5s); // Instead of this: Async wait for confirmation from the exchange and the first market data to arrive.
 		Tick t = StreamingMarketData::getInstance().getTick("ETH/USD");
 		std::cout << t << "\n";
 		ASSERT_TRUE(true);
