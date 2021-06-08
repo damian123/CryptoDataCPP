@@ -91,11 +91,6 @@ void WS::close()
     connection->close(websocketpp::close::status::normal, "Closing connection");
 }
 
-void WS::stop()
-{
-    wsclient.stop();
-}
-
 void WS::subscribe(std::string market, std::string channel)
 {    
     json msg = { {"op", "subscribe"}, {"channel", channel}, {"market", market} }; 

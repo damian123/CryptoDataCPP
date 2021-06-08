@@ -65,18 +65,6 @@ class WS
     */
     void close();
 
-    /*!
-    * This will immediately cease processing io_service jobs. 
-    * This will leave all existing connections in a limbo state. 
-    * WebSocket connections will not appear to have closed on the other end but when they try 
-    * and write they will get a broken TCP / unclean disconnect error or timeout error. 
-    * Your local OS may keep sockets open as well tying up resources or ports. 
-    * You local WebSocket++ connections will all immediately have their close/fail handlers 
-    * called with an unclean disconnect close code.
-    * Note: It is advised to call close() instead.
-    */
-    void stop();
-
     void subscribe(std::string market, std::string channel);
 
   private:

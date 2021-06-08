@@ -28,11 +28,6 @@ void WSClient::close()
 	ws.close();
 }
 
-void WSClient::stop()
-{
-    ws.stop();
-}
-
 std::vector<json> WSClient::on_open()
 {
     std::vector<json> msgs;
