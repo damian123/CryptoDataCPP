@@ -5,7 +5,7 @@
 
 #define GTEST_COUT std::cerr << "[          ] "
 
-TEST(streaming_marketdata_test_case, Spot)
+TEST(streaming_marketdata_test_case, SpotRate)
 {                
     // Get the spot rate
     using namespace std::chrono_literals;
