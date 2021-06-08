@@ -3,6 +3,7 @@
 #include "util/HTTP.h"
 #include <json.hpp>
 #include <string>
+#include <chrono>
 
 using json = nlohmann::json;
 
@@ -39,6 +40,24 @@ class RESTClient
      * @return The users executed trades for the market.
      */
     json get_trades(const std::string market);
+
+    /*!
+     * Get historical OHLCV data.
+     * For all securities on FTX including futures, perpetuals, spot, and MOVE contracts.
+     * For historical prices of expired futures please make sure to specify start time and end time.
+     * @param market
+     * @param window is the length of the time window in seconds. Default is 300 seconds, but other options are 15, 60, 300, 900, 3600, 14400, 86400.
+     * @param limit is the maximum 
+     * @param startTime is the requested start time in the UTC time zone.
+     * @param endTime is the requested end timein the UTC time zone.
+     * 
+     * @return The OHLCV response 
+     */
+    json get_OHLCV(const std::string market,
+        int window = 300,
+        int limit = 5000,
+        std::optional<std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds>> startTime = {},
+        std::optional<std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds>> endTime = {});
 
     /*!
      * Get account information.

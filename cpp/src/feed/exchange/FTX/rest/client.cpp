@@ -20,7 +20,7 @@ json RESTClient::list_markets()
 }
 
 json RESTClient::get_orderbook(const std::string market, int depth)
-{
+{	
     auto response =
       http_client.get("markets/" + market + "?depth=" + std::to_string(depth));
     return json::parse(response.body());
@@ -30,6 +30,34 @@ json RESTClient::get_trades(const std::string market)
 {
     auto response = http_client.get("markets/" + market + "/trades");
     return json::parse(response.body());
+}
+
+json RESTClient::get_OHLCV(const std::string market, 
+    int window,
+    int limit, 
+	std::optional<std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds>> startTime,
+	std::optional<std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds>> endTime)
+{
+    // GET /markets/{market_name}/candles?resolution={resolution}&start_time={start_time}&end_time={end_time}
+    // for example https://ftx.com/api/markets/BTC-PERP/candles?resolution=900&limit=5000&start_time=1613742300&end_time=1613745900
+
+	using std::chrono::duration_cast;
+	using std::chrono::milliseconds;
+	
+    auto request = "markets/" + market + "/candles" + "?resolution=" + std::to_string(window);    
+    request += "&limit=" + std::to_string(limit);
+    if (startTime != std::nullopt) {
+        auto st = startTime.value();
+        auto millisec_since_epoch = duration_cast<milliseconds>(st.time_since_epoch()).count();
+        request += "&start_time=" + std::to_string(millisec_since_epoch/1000.0);
+    }
+	if (endTime != std::nullopt) {
+		auto end = endTime.value();
+		auto millisec_since_epoch = duration_cast<milliseconds>(end.time_since_epoch()).count();
+        request += "&end_time=" + std::to_string(millisec_since_epoch/1000.0);
+	}
+	auto response = http_client.get(request);
+	return json::parse(response.body());
 }
 
 json RESTClient::get_account_info()

@@ -15,6 +15,9 @@ int main()
     auto ob = client.get_orderbook("BTC-PERP", 3);
     std::cout << ob << "\n\n";
 
+	auto ohlcv = client.get_OHLCV("BTC-PERP", 86400);
+	std::cout << ohlcv << "\n";
+
     auto acct = client.get_account_info();
     std::cout << acct << "\n\n";
 
