@@ -41,6 +41,7 @@ add_subdirectory(cpp/src/feed/exchange/FTX/example)
 
 add_subdirectory(cpp/src/staticdata/securities)
 add_subdirectory(cpp/src/marketdata/streaming)
+add_subdirectory(cpp/src/marketdata/historical)
 
 if (BUILD_TESTS_CRYPTODATA)
   message(STATUS "Building tests")

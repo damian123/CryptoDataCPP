@@ -48,8 +48,8 @@ class RESTClient
      * @param market
      * @param window is the length of the time window in seconds. Default is 300 seconds, but other options are 15, 60, 300, 900, 3600, 14400, 86400.
      * @param limit is the maximum 
-     * @param startTime is the requested start time in the UTC time zone.
-     * @param endTime is the requested end timein the UTC time zone.
+     * @param startTime is the requested start time in UTC time zone format.
+     * @param endTime is the requested end time in UTC time zone format.
      * 
      * @return The OHLCV response 
      */

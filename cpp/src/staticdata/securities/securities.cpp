@@ -2,8 +2,9 @@
 #include <iostream>
 #include <fstream>
 #include <fmt/core.h>
+#include <rest/client.h>
 
-SpotSecurity Securities::SecSpot(const std::string& secCode, const std::string& source)
+SpotSecurity Securities::SecSpot(std::string secCode, std::string source)
 {
 	if (source.size() > 0)
 	{		
@@ -21,7 +22,7 @@ SpotSecurity Securities::SecSpot(const std::string& secCode, const std::string& 
 	}
 }
 
-FutureSecurity Securities::SecFuture(const std::string& secCode, const std::string& source)
+FutureSecurity Securities::SecFuture(std::string secCode, std::string source)
 {
 	if (source.size() > 0)
 	{
@@ -39,7 +40,7 @@ FutureSecurity Securities::SecFuture(const std::string& secCode, const std::stri
 	}
 }
 
-bool Securities::IsSpotSecurity(const std::string& seccode, const std::string& source)
+bool Securities::IsSpotSecurity(std::string seccode, std::string source)
 {	
 	if (source.size() > 0)
 		return spotSec_[source].count(seccode) > 0;
@@ -50,7 +51,7 @@ bool Securities::IsSpotSecurity(const std::string& seccode, const std::string& s
 	}
 }
 
-bool Securities::IsFutureSecurity(const std::string& seccode, const std::string& source)
+bool Securities::IsFutureSecurity(std::string seccode, std::string source)
 {
 	if (source.size() > 0)
 		return futureSec_[source].count(seccode) > 0;
@@ -112,7 +113,7 @@ namespace {
 	}
 }
 
-void Securities::Refresh(const std::string& source)
+void Securities::Refresh(std::string source)
 {
 	if (source == "ftx")
 	{
@@ -161,7 +162,7 @@ void Securities::Refresh(const std::string& source)
 	}
 	else
 	{
-		throw std::exception("securities source not supported");
+		throw std::exception(fmt::format("securities source not supported: {}", source).c_str());
 	}
 }
 

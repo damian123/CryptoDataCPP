@@ -100,7 +100,7 @@ void StreamingMarketData::Subscribe(std::string secID)
 	ftxClient_.subscribe(secID, "ticker");
 }
 
-Tick StreamingMarketData::getTick(const std::string& secID)
+Tick StreamingMarketData::getTick(std::string secID)
 {
 	dictAccessor accessor;
 	const auto isFound = marketdata_.find(accessor, secID);

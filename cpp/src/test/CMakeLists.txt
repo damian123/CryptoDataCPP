@@ -9,13 +9,13 @@ add_executable(cryptodata_test
     main.cpp
     staticdata/testsecurities.cpp
     marketdata/testStreamingMarketData.cpp
+    marketdata/testHistoricalMarketData.cpp
 )
-
-target_include_directories(cryptodata_test PRIVATE securities streaming)
 
 target_link_libraries(cryptodata_test PRIVATE 
     securities
     streaming
+    historical
     ws
     rest
     ${CONAN_LIBS}

@@ -50,7 +50,7 @@ public:
 
 	void SecID(std::string secID) { secid_ = secID; }
 	void Subscribe(std::string secID);
-	Tick getTick(const std::string& secID);
+	Tick getTick(std::string secID);
 	virtual void stop() {		
 		ftxClient_.close();
 		stop_ = true;
