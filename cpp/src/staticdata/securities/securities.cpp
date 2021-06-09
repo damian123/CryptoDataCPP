@@ -39,7 +39,7 @@ FutureSecurity Securities::SecFuture(const std::string& secCode, const std::stri
 	}
 }
 
-bool Securities::FindSpot(const std::string& seccode, const std::string& source)
+bool Securities::IsSpotSecurity(const std::string& seccode, const std::string& source)
 {	
 	if (source.size() > 0)
 		return spotSec_[source].count(seccode) > 0;
@@ -50,7 +50,7 @@ bool Securities::FindSpot(const std::string& seccode, const std::string& source)
 	}
 }
 
-bool Securities::FindFuture(const std::string& seccode, const std::string& source)
+bool Securities::IsFutureSecurity(const std::string& seccode, const std::string& source)
 {
 	if (source.size() > 0)
 		return futureSec_[source].count(seccode) > 0;

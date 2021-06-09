@@ -36,8 +36,8 @@ class Securities
 public:
 	SpotSecurity SecSpot(const std::string& secCode, const std::string& source = "");
 	FutureSecurity SecFuture(const std::string& secCode, const std::string& source = "");
-	bool FindSpot(const std::string& seccode, const std::string& source = "");	
-	bool FindFuture(const std::string& seccode, const std::string& source = "");
+	bool IsSpotSecurity(const std::string& seccode, const std::string& source = "");	
+	bool IsFutureSecurity(const std::string& seccode, const std::string& source = "");
 	void Refresh(const std::string& source);
 private:
 	// map of source to map of security code to description

@@ -2,18 +2,18 @@
 #include <gtest/gtest.h>
 #include <securities.h>
 
-TEST(securities_test_case, FindSpot)
+TEST(securities_test_case, IsSpotSecurity)
 {            
     Securities s;
     s.Refresh("ftx");
-    EXPECT_EQ(true, s.FindSpot("BTC/USD", "ftx"));
+    EXPECT_EQ(true, s.IsSpotSecurity("BTC/USD", "ftx"));
 }
 
-TEST(securities_test_case, FindFuture)
+TEST(securities_test_case, IsFutureSecurity)
 {
 	Securities s;
 	s.Refresh("ftx");
-	EXPECT_EQ(true, s.FindFuture("BTC-PERP", "ftx"));
+	EXPECT_EQ(true, s.IsFutureSecurity("BTC-PERP", "ftx"));
 }
 
 TEST(securities_test_case, SpotSecurity)
