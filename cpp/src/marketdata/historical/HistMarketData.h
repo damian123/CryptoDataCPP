@@ -2,7 +2,6 @@
 
 #include <rest/client.h>
 #include <chrono>
-#include <spdlog/spdlog.h>
 
 struct ohlcv
 {
