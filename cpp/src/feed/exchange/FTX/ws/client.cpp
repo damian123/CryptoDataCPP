@@ -1,15 +1,26 @@
 #include "ws/client.h"
 #include "util/Encoding.h"
 #include "util/TimeUtil.h"
+#include <stdexcept>
 #include <utility>
 
 namespace encoding = util::encoding;
 
 namespace ftx {
 
-WSClient::WSClient()
+WSClient::WSClient(std::string uri,
+                   std::string api_key,
+                   std::string api_secret,
+                   std::string subaccount_name)
+  : uri(std::move(uri)),
+    api_key(std::move(api_key)),
+    api_secret(std::move(api_secret)),
+    subaccount_name(std::move(subaccount_name))
 {
-    ws.configure(uri, api_key, api_secret, subaccount_name);
+	    if (this->api_key.empty() != this->api_secret.empty()) {
+	        throw std::invalid_argument("API key and secret must be provided together");
+	    }
+	    ws.configure(this->uri);
     ws.set_on_open_cb([this]() { return this->on_open(); });
 }
 
@@ -33,16 +44,17 @@ std::vector<json> WSClient::on_open()
     std::vector<json> msgs;
 
     if (!(api_key.empty() || api_secret.empty())) {
-        long ts = util::get_ms_timestamp(util::current_time()).count();
+	        const auto ts = util::get_ms_timestamp(util::current_time()).count();
         std::string data = std::to_string(ts) + "websocket_login";
-        std::string hmacced = encoding::hmac(std::string(api_secret), data, 32);
-        std::string sign =
-          encoding::util_string_to_hex((unsigned char*)hmacced.c_str(), 32);
+	        std::string hmacced = encoding::hmac_sha256(api_secret, data);
+	        std::string sign =
+	          encoding::util_string_to_hex(
+	            reinterpret_cast<const unsigned char*>(hmacced.data()), hmacced.size());
         json msg = {{"op", "login"},
                     {"args", {{"key", api_key}, {"sign", sign}, {"time", ts}}}};
-        if (!subaccount_name.empty()) {
-            msg.push_back({"subaccount", subaccount_name});
-        }
+	        if (!subaccount_name.empty()) {
+	            msg["args"]["subaccount"] = subaccount_name;
+	        }
         msgs.push_back(msg);
     }
 

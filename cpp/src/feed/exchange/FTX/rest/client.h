@@ -1,9 +1,11 @@
 #pragma once
 
 #include "util/HTTP.h"
-#include <json.hpp>
-#include <string>
 #include <chrono>
+#include <json.hpp>
+#include <optional>
+#include <string>
+#include <utility>
 
 using json = nlohmann::json;
 
@@ -13,7 +15,32 @@ class RESTClient
 {
   public:
     //! Default constructor
-    RESTClient();
+	    explicit RESTClient(std::string uri = "ftx.com",
+	                        std::string api_key = {},
+	                        std::string api_secret = {},
+	                        std::string subaccount_name = {});
+
+	    static json limit_order_payload(const std::string& market,
+	                                    const std::string& side,
+	                                    double price,
+	                                    double size,
+	                                    bool ioc,
+	                                    bool post_only,
+	                                    bool reduce_only);
+	    static json market_order_payload(const std::string& market,
+	                                     const std::string& side,
+	                                     double size,
+	                                     bool ioc,
+	                                     bool post_only,
+	                                     bool reduce_only);
+	    static std::string ohlcv_target(
+	      const std::string& market,
+	      int window,
+	      int limit,
+	      std::optional<std::chrono::time_point<std::chrono::system_clock,
+	                                            std::chrono::seconds>> start_time = {},
+	      std::optional<std::chrono::time_point<std::chrono::system_clock,
+	                                            std::chrono::seconds>> end_time = {});
 
     /*! 
      * List all futures on FTX.
@@ -135,10 +162,10 @@ class RESTClient
 
   private:
     util::HTTPSession http_client;
-    const std::string uri = "ftx.com";
-    const std::string api_key = "";
-    const std::string api_secret = "";
-    const std::string subaccount_name = "";
+	    std::string uri;
+	    std::string api_key;
+	    std::string api_secret;
+	    std::string subaccount_name;
 };
 
 }

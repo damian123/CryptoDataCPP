@@ -1,7 +1,10 @@
 #pragma once
 
 #include <json.hpp>
+#include <atomic>
 #include <functional>
+#include <mutex>
+#include <string>
 #include <websocketpp/client.hpp>
 #include <websocketpp/config/asio_client.hpp>
 
@@ -28,10 +31,7 @@ class WS
      * @param _api_secret The account's API secret.
      * @param _subaccount_name The sub account name.
      */
-    void configure(std::string _uri,
-                   std::string _api_key,
-                   std::string _api_secret,
-                   std::string _subaccount_name);
+	    void configure(std::string uri);
 
     /*!
      * Set a callback function that is called when a web socket connection is opened.
@@ -68,14 +68,14 @@ class WS
     void subscribe(std::string market, std::string channel);
 
   private:
-    WSClient wsclient;
-    WSClient::connection_ptr connection;
-    OnOpenCB on_open_cb;
-    OnMessageCB on_message_cb;
-    std::string uri;
-    std::string api_key;
-    std::string api_secret;
-    std::string subaccount_name;
+	    WSClient wsclient;
+	    WSClient::connection_ptr connection;
+	    mutable std::mutex connection_mutex;
+	    OnOpenCB on_open_cb;
+	    OnMessageCB on_message_cb;
+	    std::string uri;
+	    std::string failure_reason;
+	    std::atomic<bool> close_requested{false};
 };
 
 }

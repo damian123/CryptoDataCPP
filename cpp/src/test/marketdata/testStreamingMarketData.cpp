@@ -1,53 +1,65 @@
-#include <iostream>
-#include <chrono>
 #include <gtest/gtest.h>
 #include <StreamingMarketData.h>
+#include <rest/client.h>
+#include <util/Encoding.h>
 
-#define GTEST_COUT std::cerr << "[          ] "
+#include <cstdint>
+#include <limits>
 
-TEST(streaming_marketdata_test_case, SpotRate)
-{                
-    // Get the spot rate
-    using namespace std::chrono_literals;
-
-    try {
-        // BTC/USD spot rates are already subscribed to in the test SetUp()
-        Tick t = StreamingMarketData::getInstance().getTick("BTC/USD");
-        std::cout << t << "\n"; 
-        ASSERT_TRUE(true);
-        
-    }
-    catch (const std::exception& ex)
-    {
-        GTEST_COUT << ex.what()  << std::endl;
-        FAIL();
-    }
-}
-
-TEST(streaming_marketdata_test_case, Subscribe)
+TEST(streaming_marketdata_test_case, AppliesTickerFixture)
 {
-    // Subscribe to spot market data
-	using namespace std::chrono_literals;
-
-	try {
-        StreamingMarketData::getInstance().Subscribe("ETH/USD");
-		std::this_thread::sleep_for(0.5s); // Instead of this: Async wait for confirmation from the exchange and the first market data to arrive.
-		Tick t = StreamingMarketData::getInstance().getTick("ETH/USD");
-		std::cout << t << "\n";
-		ASSERT_TRUE(true);
-
-	}
-	catch (const std::exception& ex)
-	{
-		GTEST_COUT << ex.what() << std::endl;
-		FAIL();
-	}
+    auto& feed = StreamingMarketData::getInstance();
+    feed.ApplyMessage({{"type", "update"},
+                       {"channel", "ticker"},
+                       {"market", "BTC/USD"},
+                       {"data", {{"time", 1621840074.25},
+                                 {"bid", 100.0},
+                                 {"ask", 101.0},
+                                 {"last", 100.5}}}});
+    const Tick tick = feed.getTick("BTC/USD");
+    EXPECT_DOUBLE_EQ(tick.bid, 100.0);
+    EXPECT_DOUBLE_EQ(tick.ask, 101.0);
+    EXPECT_DOUBLE_EQ(tick.last, 100.5);
 }
 
+TEST(streaming_marketdata_test_case, BuildsSubscriptionOffline)
+{
+    ftx::WSClient client;
+    client.subscribe_ticker("ETH/USD");
+    const auto messages = client.on_open();
+    ASSERT_EQ(messages.size(), 1U);
+    EXPECT_EQ(messages[0].at("op"), "subscribe");
+    EXPECT_EQ(messages[0].at("channel"), "ticker");
+    EXPECT_EQ(messages[0].at("market"), "ETH/USD");
+}
 
-// Some of these the market feed code to be refined.
-// TODO: Check for invalid security codes when connecting to the exchange server.
-// TODO: Check for invalid security codes when retrieving ticks.
-// TODO: Check if we get errors when the connection is down.
-// TODO: Start a new market data stream after stopping it.
+TEST(rest_client_test_case, MarketOrderUsesJsonNullPrice)
+{
+    const auto payload = ftx::RESTClient::market_order_payload(
+      "BTC-PERP", "buy", 0.01, false, false, false);
+    EXPECT_TRUE(payload.at("price").is_null());
+}
 
+TEST(encoding_test_case, HmacSha256KnownVector)
+{
+    const auto digest = util::encoding::hmac_sha256(
+      "key", "The quick brown fox jumps over the lazy dog");
+    const auto hex = util::encoding::util_string_to_hex(
+      reinterpret_cast<const unsigned char*>(digest.data()), digest.size());
+    EXPECT_EQ(hex, "f7bc83f430538424b13298e6aa6fb143ef4d59a14946175997479dbc2d1a3cd8");
+}
+
+TEST(ws_client_test_case, AuthenticationUsesEpochMillisecondsWiderThanLongOnWindows)
+{
+    ftx::WSClient client(
+      "wss://example.invalid/ws", "api-key", "api-secret", "archive-subaccount");
+    const auto messages = client.on_open();
+
+    ASSERT_EQ(messages.size(), 1U);
+    const auto& args = messages[0].at("args");
+    const auto timestamp = args.at("time").get<std::int64_t>();
+    EXPECT_GT(timestamp, static_cast<std::int64_t>(std::numeric_limits<std::int32_t>::max()));
+    EXPECT_EQ(args.at("sign").get<std::string>().size(), 64U);
+    EXPECT_EQ(args.at("subaccount"), "archive-subaccount");
+    EXPECT_FALSE(messages[0].contains("subaccount"));
+}

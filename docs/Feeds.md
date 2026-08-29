@@ -1,6 +1,11 @@
-[FTX](https://ftx.com/) is a crypto derivatives exchange that offers Futures, Leveraged Tokens and OTC. The exchange is Antigua and Barbuda based.
+# Archived feed notes
 
-You can find the REST API docs [here](https://docs.ftx.com/#rest-api), websocket API docs [here](https://docs.ftx.com/#websocket-api), and FIX docs [here](https://docs.ftx.com/#fix-api).
+FTX ceased operating and the endpoints represented by this repository are defunct.
+The source remains only as historical implementation evidence. Do not create or
+provide API keys, do not redirect the clients to another host, and do not use the
+old request or authentication contracts as current exchange documentation.
 
-You can create API keys on your [profile page](https://ftx.com/profile).
-
+The default build excludes network examples, and all automated tests use local
+fixtures. Any future feed integration requires a new protocol review, explicit
+credential handling, deterministic mocks, sequence/replay controls, and a separate
+security assessment.

@@ -2,9 +2,74 @@
 
 namespace ftx {
 
-RESTClient::RESTClient()
+RESTClient::RESTClient(std::string uri,
+                       std::string api_key,
+                       std::string api_secret,
+                       std::string subaccount_name)
+  : uri(std::move(uri)),
+    api_key(std::move(api_key)),
+    api_secret(std::move(api_secret)),
+    subaccount_name(std::move(subaccount_name))
 {
-    http_client.configure(uri, api_key, api_secret, subaccount_name);
+	    http_client.configure(uri, api_key, api_secret, subaccount_name);
+}
+
+json RESTClient::limit_order_payload(const std::string& market,
+                                     const std::string& side,
+                                     double price,
+                                     double size,
+                                     bool ioc,
+                                     bool post_only,
+                                     bool reduce_only)
+{
+    return {{"market", market},
+            {"side", side},
+            {"price", price},
+            {"type", "limit"},
+            {"size", size},
+            {"ioc", ioc},
+            {"postOnly", post_only},
+            {"reduceOnly", reduce_only}};
+}
+
+json RESTClient::market_order_payload(const std::string& market,
+                                      const std::string& side,
+                                      double size,
+                                      bool ioc,
+                                      bool post_only,
+                                      bool reduce_only)
+{
+    return {{"market", market},
+            {"side", side},
+            {"price", nullptr},
+            {"type", "market"},
+            {"size", size},
+            {"ioc", ioc},
+            {"postOnly", post_only},
+            {"reduceOnly", reduce_only}};
+}
+
+std::string RESTClient::ohlcv_target(
+  const std::string& market,
+  int window,
+  int limit,
+  std::optional<std::chrono::time_point<std::chrono::system_clock,
+                                        std::chrono::seconds>> start_time,
+  std::optional<std::chrono::time_point<std::chrono::system_clock,
+                                        std::chrono::seconds>> end_time)
+{
+    std::string target =
+      "markets/" + market + "/candles?resolution=" + std::to_string(window);
+    target += "&limit=" + std::to_string(limit);
+    if (start_time) {
+        target += "&start_time=" +
+                  std::to_string(start_time->time_since_epoch().count());
+    }
+    if (end_time) {
+        target +=
+          "&end_time=" + std::to_string(end_time->time_since_epoch().count());
+    }
+    return target;
 }
 
 json RESTClient::list_futures()
@@ -41,23 +106,9 @@ json RESTClient::get_OHLCV(const std::string market,
     // GET /markets/{market_name}/candles?resolution={resolution}&start_time={start_time}&end_time={end_time}
     // for example https://ftx.com/api/markets/BTC-PERP/candles?resolution=900&limit=5000&start_time=1613742300&end_time=1613745900
 
-	using std::chrono::duration_cast;
-	using std::chrono::milliseconds;
-	
-    auto request = "markets/" + market + "/candles" + "?resolution=" + std::to_string(window);    
-    request += "&limit=" + std::to_string(limit);
-    if (startTime != std::nullopt) {
-        auto st = startTime.value();
-        auto millisec_since_epoch = duration_cast<milliseconds>(st.time_since_epoch()).count();
-        request += "&start_time=" + std::to_string(millisec_since_epoch/1000.0);
-    }
-	if (endTime != std::nullopt) {
-		auto end = endTime.value();
-		auto millisec_since_epoch = duration_cast<milliseconds>(end.time_since_epoch()).count();
-        request += "&end_time=" + std::to_string(millisec_since_epoch/1000.0);
-	}
-	auto response = http_client.get(request);
-	return json::parse(response.body());
+		auto response = http_client.get(
+		  ohlcv_target(market, window, limit, startTime, endTime));
+		return json::parse(response.body());
 }
 
 json RESTClient::get_account_info()
@@ -80,14 +131,8 @@ json RESTClient::place_order(const std::string market,
                              bool post_only,
                              bool reduce_only)
 {
-    json payload = {{"market", market},
-                    {"side", side},
-                    {"price", price},
-                    {"type", "limit"},
-                    {"size", size},
-                    {"ioc", ioc},
-                    {"postOnly", post_only},
-                    {"reduceOnly", reduce_only}};
+	    json payload = limit_order_payload(
+	      market, side, price, size, ioc, post_only, reduce_only);
     auto response = http_client.post("orders", payload.dump());
     return json::parse(response.body());
 }
@@ -99,14 +144,8 @@ json RESTClient::place_order(const std::string market,
                              bool post_only,
                              bool reduce_only)
 {
-    json payload = {{"market", market},
-                    {"side", side},
-                    {"price", NULL},
-                    {"type", "market"},
-                    {"size", size},
-                    {"ioc", ioc},
-                    {"postOnly", post_only},
-                    {"reduceOnly", reduce_only}};
+	    json payload = market_order_payload(
+	      market, side, size, ioc, post_only, reduce_only);
     auto response = http_client.post("orders", payload.dump());
     return json::parse(response.body());
 }

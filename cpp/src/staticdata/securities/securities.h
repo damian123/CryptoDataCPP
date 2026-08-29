@@ -2,6 +2,7 @@
 
 #include <string>
 #include <map>
+#include <json.hpp>
 
 struct ExchangeRules
 {
@@ -38,6 +39,7 @@ public:
 	bool IsSpotSecurity(std::string seccode, std::string source = "");	
 	bool IsFutureSecurity(std::string seccode, std::string source = "");
 	void Refresh(std::string source);
+	void LoadResponse(const std::string& source, const nlohmann::json& response);
 private:
 	// map of source to map of security code to description
 	std::map <std::string, std::map<std::string, SpotSecurity>> spotSec_;

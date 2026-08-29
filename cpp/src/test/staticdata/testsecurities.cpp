@@ -1,53 +1,90 @@
-#include <iostream>
 #include <gtest/gtest.h>
 #include <securities.h>
 
+namespace {
+nlohmann::json markets()
+{
+    return {
+      {"success", true},
+      {"result",
+       {{{"type", "spot"},
+         {"name", "BTC/USD"},
+         {"quoteCurrency", "USD"},
+         {"baseCurrency", "BTC"},
+         {"enabled", true},
+         {"minProvideSize", 0.0001},
+         {"priceIncrement", 1.0},
+         {"sizeIncrement", 0.0001},
+         {"postOnly", false},
+         {"restricted", false}},
+        {{"type", "future"},
+         {"name", "BTC-PERP"},
+         {"underlying", "BTC"},
+         {"enabled", true},
+         {"minProvideSize", 0.001},
+         {"priceIncrement", 1.0},
+         {"sizeIncrement", 0.0001},
+         {"postOnly", false},
+         {"restricted", false}}}}};
+}
+
+Securities loaded()
+{
+    Securities securities;
+    securities.LoadResponse("ftx", markets());
+    return securities;
+}
+}
+
 TEST(securities_test_case, IsSpotSecurity)
-{            
-    Securities s;
-    s.Refresh("ftx");
-    EXPECT_EQ(true, s.IsSpotSecurity("BTC/USD", "ftx"));
+{
+    auto securities = loaded();
+    EXPECT_TRUE(securities.IsSpotSecurity("BTC/USD", "ftx"));
 }
 
 TEST(securities_test_case, IsFutureSecurity)
 {
-	Securities s;
-	s.Refresh("ftx");
-	EXPECT_EQ(true, s.IsFutureSecurity("BTC-PERP", "ftx"));
+    auto securities = loaded();
+    EXPECT_TRUE(securities.IsFutureSecurity("BTC-PERP", "ftx"));
 }
 
 TEST(securities_test_case, SpotSecurity)
 {
-	Securities s;
-	s.Refresh("ftx");
-	auto sec = s.SecSpot("BTC/USD", "ftx");
-	EXPECT_STREQ("spot", sec.product.c_str());
-	EXPECT_STREQ("ftx", sec.source.c_str());
-	EXPECT_STREQ("BTC/USD", sec.symbol.c_str());
-	EXPECT_STREQ("USD", sec.quoteCurrency.c_str());
-	EXPECT_STREQ("BTC", sec.baseCurrency.c_str());	
-	// Validate Exchange Rules
-	EXPECT_EQ(true, sec.enabled);						
-	EXPECT_EQ(0.0001, sec.minProvideSize);
-	EXPECT_EQ(1.0, sec.priceIncrement);
-	EXPECT_EQ(0.0001, sec.sizeIncrement);
-	EXPECT_EQ(false, sec.postOnly);
-	EXPECT_EQ(false, sec.restricted);
+    auto securities = loaded();
+    const auto security = securities.SecSpot("BTC/USD", "ftx");
+    EXPECT_EQ(security.product, "spot");
+    EXPECT_EQ(security.source, "ftx");
+    EXPECT_EQ(security.symbol, "BTC/USD");
+    EXPECT_EQ(security.quoteCurrency, "USD");
+    EXPECT_EQ(security.baseCurrency, "BTC");
+    EXPECT_TRUE(security.enabled);
+    EXPECT_DOUBLE_EQ(security.minProvideSize, 0.0001);
+    EXPECT_DOUBLE_EQ(security.priceIncrement, 1.0);
+    EXPECT_DOUBLE_EQ(security.sizeIncrement, 0.0001);
+    EXPECT_FALSE(security.postOnly);
+    EXPECT_FALSE(security.restricted);
 }
 
 TEST(securities_test_case, FutureSecurity)
 {
-	Securities s;
-	s.Refresh("ftx");
-	auto sec = s.SecFuture("BTC-PERP", "ftx");
-	EXPECT_STREQ("future", sec.product.c_str());
-	EXPECT_STREQ("ftx", sec.source.c_str());
-	EXPECT_STREQ("BTC-PERP", sec.symbol.c_str());		
-	// Validate Exchange Rules
-	EXPECT_EQ(true, sec.enabled);
-	EXPECT_EQ(0.001, sec.minProvideSize);
-	EXPECT_EQ(1.0, sec.priceIncrement);
-	EXPECT_EQ(0.0001, sec.sizeIncrement);
-	EXPECT_EQ(false, sec.postOnly);
-	EXPECT_EQ(false, sec.restricted);
+    auto securities = loaded();
+    const auto security = securities.SecFuture("BTC-PERP", "ftx");
+    EXPECT_EQ(security.product, "future");
+    EXPECT_EQ(security.source, "ftx");
+    EXPECT_EQ(security.symbol, "BTC-PERP");
+    EXPECT_EQ(security.underlying, "BTC");
+    EXPECT_TRUE(security.enabled);
+    EXPECT_DOUBLE_EQ(security.minProvideSize, 0.001);
+    EXPECT_DOUBLE_EQ(security.priceIncrement, 1.0);
+    EXPECT_DOUBLE_EQ(security.sizeIncrement, 0.0001);
+    EXPECT_FALSE(security.postOnly);
+    EXPECT_FALSE(security.restricted);
+}
+
+TEST(securities_test_case, RejectsDuplicateSecurityCodes)
+{
+    auto duplicate = markets();
+    duplicate["result"].push_back(duplicate["result"][0]);
+    Securities securities;
+    EXPECT_THROW(securities.LoadResponse("ftx", duplicate), std::runtime_error);
 }

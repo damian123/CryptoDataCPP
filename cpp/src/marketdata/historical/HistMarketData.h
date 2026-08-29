@@ -16,6 +16,8 @@ struct ohlcv
 
 struct HistMarketData
 {
+	static std::vector<ohlcv> ParseResponse(const json& response,
+	                                       const std::string& security_code);
 	std::vector<ohlcv> Load(std::string source, 
 		std::string secCode,
 		int interval = 86400,

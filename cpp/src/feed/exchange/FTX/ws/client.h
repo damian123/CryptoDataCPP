@@ -13,7 +13,10 @@ class WSClient
 {
   public:
     //! Default constructor
-    WSClient();
+	    explicit WSClient(std::string uri = "wss://ftx.com/ws/",
+	                      std::string api_key = {},
+	                      std::string api_secret = {},
+	                      std::string subaccount_name = {});
 
     /*!
      * Set a function to called back when a message is received from the exchange server.
@@ -79,10 +82,10 @@ class WSClient
     std::vector<std::pair<std::string, std::string>> subscriptions; // vector of pairs for markets and channels.
     util::WS::OnMessageCB message_cb;
     util::WS ws;
-    const std::string uri = "wss://ftx.com/ws/";
-    const std::string api_key = "";
-    const std::string api_secret = "";
-    const std::string subaccount_name = "";
+	    std::string uri;
+	    std::string api_key;
+	    std::string api_secret;
+	    std::string subaccount_name;
 };
 
 }

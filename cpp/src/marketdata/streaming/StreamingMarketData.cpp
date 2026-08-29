@@ -1,98 +1,68 @@
 #include <StreamingMarketData.h>
 
-#ifdef min
-#undef min
-#endif
-#ifdef max
-#undef max
-#endif
-#include <date/date.h>
-#include <iostream>
+#include <ctime>
 #include <fmt/core.h>
+#include <iomanip>
+#include <iostream>
 #include <spdlog/fmt/ostr.h>
-
-typedef tbb::concurrent_hash_map<std::string, Tick>::accessor dictAccessor;
 
 std::ostream& operator<<(std::ostream& o, const Tick& t)
 {
-	using namespace date;	
 	using namespace std::chrono;
-	std::chrono::sys_time<milliseconds> tp{ milliseconds{int64_t(t.time*1000.)} };
-	return o << tp << "," << t.bid << "," << t.ask << "," << t.last;
+	const auto total = milliseconds{static_cast<std::int64_t>(t.time * 1000.)};
+	const auto whole_seconds = duration_cast<seconds>(total);
+	const std::time_t epoch = whole_seconds.count();
+	std::tm utc{};
+#ifdef _WIN32
+	gmtime_s(&utc, &epoch);
+#else
+	gmtime_r(&epoch, &utc);
+#endif
+	const auto remainder = (total - duration_cast<milliseconds>(whole_seconds)).count();
+	return o << std::put_time(&utc, "%Y-%m-%d %H:%M:%S") << "."
+	         << std::setw(3) << std::setfill('0') << remainder << "Z,"
+	         << t.bid << "," << t.ask << "," << t.last;
+}
+
+void StreamingMarketData::ApplyMessage(const json& message)
+{
+	const std::string type = message.at("type").get<std::string>();
+	if (type == "error") {
+		throw std::runtime_error(fmt::format("stream error message: {}", message.dump()));
+	}
+	if (type == "subscribed") {
+		log_->info(fmt::format("subscribed: {}", message.dump()));
+		return;
+	}
+	if (type != "update") {
+		throw std::runtime_error(
+		  fmt::format("unknown message type {}: {}", type, message.dump()));
+	}
+	if (message.at("channel").get<std::string>() != "ticker") {
+		throw std::runtime_error("stream update is not a ticker message");
+	}
+
+	Tick tick{};
+	tick.time = message.at("data").at("time").get<double>();
+	tick.bid = message.at("data").at("bid").get<double>();
+	tick.ask = message.at("data").at("ask").get<double>();
+	tick.last = message.at("data").at("last").get<double>();
+	const std::string security = message.at("market").get<std::string>();
+	std::lock_guard<std::mutex> lock(marketdata_mutex_);
+	marketdata_[security] = tick;
 }
 
 void StreamingMarketData::run()
-{ 		
-	while (!stop_) 
-	{ 
-		try {
-			ftxClient_.subscribe_ticker(secid_.c_str());
-
-			ftxClient_.on_message(
-				[this](json j)
-				{					
-					std::string type = j["type"].get<std::string>();
-					if (type.compare("error") == 0)
-					{
-						auto errmsg = fmt::format("error message: {}", j.dump());
-						log_->error(errmsg);
-						throw std::exception(errmsg.c_str());
-					}
-					else if (type.compare("subscribed") == 0)
-					{
-						log_->info(fmt::format("subscribed: {}", j));
-					}
-					else if (type.compare("update") == 0)
-					{
-						// For example this will arrive
-						// {"channel":"ticker", 
-						//  "data" : {"ask":36625.0, "askSize" : 0.0268, "bid" : 36616.0, "bidSize" : 0.1874, "last" : 36613.0, "time" : 1621840074.4480262}, 
-						//  "market" : "BTC/USD", 
-						//  "type" : "update"}
-						log_->debug(fmt::format("Update msg: {}", j));
-						std::string secID = j["market"];
-						std::string channel = j["channel"];
-						// TODO: Check channel is a ticker
-
-						Tick t;
-						t.time = j["data"]["time"];
-						t.bid = j["data"]["bid"];
-						t.ask = j["data"]["ask"];
-						t.last = j["data"]["last"];
-						dictAccessor accessor;
-						marketdata_.insert(accessor, secID);
-						accessor->second = t;
-					}
-					else
-					{
-						log_->error(fmt::format("Unknown message type {} message: {}", type, j.dump()));
-					}
-				});
-
-			try
-			{
-				ftxClient_.connect();
-			}
-			catch (boost::system::system_error const& e)
-			{				
-				boost::system::error_code error = e.code();				
-				log_->error(fmt::format("Connecton error: {}", error.message()));				
-				return;
-			}
-			catch (const std::exception& ex)
-			{ 
-				log_->error(fmt::format("Connecton error: {}", ex.what()));
-				return;
-			}
-
-		}
-		catch (const std::exception& ex)
-		{
-			auto error{ ex.what() }; // TODO: write this to the logger
-			stop_ = true; // TODO: don't stop this message loop handler on all errors.
-			return;
-		}
-	};
+{
+	if (stop_) return;
+	try {
+		ftxClient_.subscribe_ticker(secid_);
+		ftxClient_.on_message([this](json message) { ApplyMessage(message); });
+		ftxClient_.connect();
+	} catch (const std::exception& error) {
+		log_->error(fmt::format("Connection error: {}", error.what()));
+	}
+	stop_ = true;
 }
 
 void StreamingMarketData::Subscribe(std::string secID)
@@ -102,11 +72,24 @@ void StreamingMarketData::Subscribe(std::string secID)
 
 Tick StreamingMarketData::getTick(std::string secID)
 {
-	dictAccessor accessor;
-	const auto isFound = marketdata_.find(accessor, secID);
-	if (isFound != true) {
-		throw std::exception(fmt::format("Security ID {} missing in ftx market data", secID).c_str());
+	std::lock_guard<std::mutex> lock(marketdata_mutex_);
+	const auto found = marketdata_.find(secID);
+	if (found == marketdata_.end()) {
+		throw std::runtime_error(
+		  fmt::format("Security ID {} missing in FTX market data", secID));
 	}
+	return found->second;
+}
 
-	return accessor->second;
+void StreamingMarketData::stop()
+{
+	stop_ = true;
+	std::exception_ptr close_error;
+	try {
+		ftxClient_.close();
+	} catch (...) {
+		close_error = std::current_exception();
+	}
+	Runnable::stop();
+	if (close_error) std::rethrow_exception(close_error);
 }

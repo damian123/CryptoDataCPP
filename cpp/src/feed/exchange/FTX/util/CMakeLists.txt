@@ -1,6 +1,3 @@
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
-
 add_library(util STATIC 
   HTTP.cpp
   HTTP.h  
@@ -12,5 +9,5 @@ add_library(util STATIC
   Secret.cpp
   Secret.h)
 
-target_include_directories(util PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
-target_link_libraries(util)
+target_include_directories(util PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+target_link_libraries(util PUBLIC CONAN_PKG::boost CONAN_PKG::openssl CONAN_PKG::fmt)
