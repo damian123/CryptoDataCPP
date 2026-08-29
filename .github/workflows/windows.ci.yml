@@ -33,6 +33,15 @@ jobs:
           python -m pip install "conan==1.66.0"
           conan remote add conancenter-v2 https://center2.conan.io --force
 
+      - name: Restore Conan cache
+        id: conan-cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.conan/data
+            C:\.conan
+          key: conan1-${{ runner.os }}-msvc17-${{ hashFiles('conan.lock', 'conanfile.txt') }}
+
       - name: Create build directory
         run: cmake -E make_directory build
 
@@ -42,6 +51,15 @@ jobs:
         run: |
           conan lock create ../conanfile.txt --lockfile ../conan.lock --lockfile-out conan-ci.lock --build=missing --remote conancenter-v2 -s compiler="Visual Studio" -s compiler.version=17 -s build_type=Release
           conan install ../conanfile.txt --lockfile conan-ci.lock --build=missing --remote conancenter-v2
+
+      - name: Save Conan cache
+        if: steps.conan-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.conan/data
+            C:\.conan
+          key: ${{ steps.conan-cache.outputs.cache-primary-key }}
 
       - name: Configure CMake
         shell: pwsh
