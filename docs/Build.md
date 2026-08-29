@@ -19,11 +19,12 @@ Open an x64 Native Tools Command Prompt for Visual Studio 2022 and run:
 git submodule update --init --recursive
 python -m pip install "conan==1.66.0"
 set CONAN_REVISIONS_ENABLED=1
+conan remote add conancenter-v2 https://center2.conan.io --force
 
 cmake -E make_directory build
 cd build
-conan lock create ..\conanfile.txt --lockfile ..\conan.lock --lockfile-out conan-debug.lock --build=missing -s compiler="Visual Studio" -s compiler.version=17 -s build_type=Debug
-conan install ..\conanfile.txt --lockfile conan-debug.lock --build=missing
+conan lock create ..\conanfile.txt --lockfile ..\conan.lock --lockfile-out conan-debug.lock --build=missing --remote conancenter-v2 -s compiler="Visual Studio" -s compiler.version=17 -s build_type=Debug
+conan install ..\conanfile.txt --lockfile conan-debug.lock --build=missing --remote conancenter-v2
 cmake .. -DBUILD_TESTS_CRYPTODATA=on -DCMAKE_BUILD_TYPE=Debug
 cmake --build . --parallel --config Debug
 ```
@@ -43,4 +44,4 @@ Expected discovery: thirteen deterministic GoogleTest cases. The default build a
 
 The source now targets standard C++17 and avoids MSVC-only flags outside guarded blocks, but this archival repository still has no supported Linux or macOS distribution contract. The CI contract is the Windows configuration above.
 
-`conan.lock` is a Windows cross-configuration base lock: it fixes direct, transitive, and source-build tool recipe revisions while allowing MSVC Debug and Release package IDs to differ. The lock-create command must retain `--build=missing` so its derived full lock includes the pinned B2, NASM, and Strawberry Perl build tools. Revisions must remain enabled whenever the lock is consumed. The lock improves repeatability but cannot guarantee that legacy recipes, sources, or hosted runners remain available indefinitely.
+`conan.lock` is a Windows cross-configuration base lock: it fixes direct, transitive, and source-build tool recipe revisions while allowing MSVC Debug and Release package IDs to differ. The lock-create command must retain `--build=missing` so its derived full lock includes the pinned B2, NASM, and Strawberry Perl build tools. Revisions must remain enabled whenever the lock is consumed. The explicit `conancenter-v2` remote is required because the legacy Conan Center endpoint does not contain the pinned Boost recipe revision with the working official archive URL. The lock improves repeatability but cannot guarantee that legacy recipes, sources, or hosted runners remain available indefinitely.

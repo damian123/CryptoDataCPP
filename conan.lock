@@ -13,7 +13,7 @@
     "context": "host"
    },
    "1": {
-    "ref": "boost/1.86.0#cd839a2082585255010f9e82eea94c7f",
+    "ref": "boost/1.86.0#ce76e7477e466d7d8cbcf738c5d64175",
     "requires": [
      "2",
      "3"

@@ -29,7 +29,9 @@ jobs:
           python-version: "3.11"
 
       - name: Install Conan 1.x
-        run: python -m pip install "conan==1.66.0"
+        run: |
+          python -m pip install "conan==1.66.0"
+          conan remote add conancenter-v2 https://center2.conan.io --force
 
       - name: Create build directory
         run: cmake -E make_directory build
@@ -38,8 +40,8 @@ jobs:
         shell: pwsh
         working-directory: ./build
         run: |
-          conan lock create ../conanfile.txt --lockfile ../conan.lock --lockfile-out conan-ci.lock --build=missing -s compiler="Visual Studio" -s compiler.version=17 -s build_type=Release
-          conan install ../conanfile.txt --lockfile conan-ci.lock --build=missing
+          conan lock create ../conanfile.txt --lockfile ../conan.lock --lockfile-out conan-ci.lock --build=missing --remote conancenter-v2 -s compiler="Visual Studio" -s compiler.version=17 -s build_type=Release
+          conan install ../conanfile.txt --lockfile conan-ci.lock --build=missing --remote conancenter-v2
 
       - name: Configure CMake
         shell: pwsh
