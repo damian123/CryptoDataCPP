@@ -38,8 +38,8 @@ jobs:
         shell: pwsh
         working-directory: ./build
         run: |
-          conan lock create .. --lockfile ../conan.lock --lockfile-out conan-ci.lock --build=missing -s compiler="Visual Studio" -s compiler.version=17 -s build_type=Release
-          conan install .. --lockfile conan-ci.lock --build=missing
+          conan lock create ../conanfile.txt --lockfile ../conan.lock --lockfile-out conan-ci.lock --build=missing -s compiler="Visual Studio" -s compiler.version=17 -s build_type=Release
+          conan install ../conanfile.txt --lockfile conan-ci.lock --build=missing
 
       - name: Configure CMake
         shell: pwsh

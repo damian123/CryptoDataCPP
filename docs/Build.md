@@ -22,8 +22,8 @@ set CONAN_REVISIONS_ENABLED=1
 
 cmake -E make_directory build
 cd build
-conan lock create .. --lockfile ..\conan.lock --lockfile-out conan-debug.lock --build=missing -s compiler="Visual Studio" -s compiler.version=17 -s build_type=Debug
-conan install .. --lockfile conan-debug.lock --build=missing
+conan lock create ..\conanfile.txt --lockfile ..\conan.lock --lockfile-out conan-debug.lock --build=missing -s compiler="Visual Studio" -s compiler.version=17 -s build_type=Debug
+conan install ..\conanfile.txt --lockfile conan-debug.lock --build=missing
 cmake .. -DBUILD_TESTS_CRYPTODATA=on -DCMAKE_BUILD_TYPE=Debug
 cmake --build . --parallel --config Debug
 ```
